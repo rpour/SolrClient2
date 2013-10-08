@@ -78,10 +78,10 @@ class SolrClient extends SolrQuery {
         /***********************************************************************
          * PREPAIR PAGING
          ***********************************************************************/
-        $response->pages = (int)$this->params['rows']) > 0
+        $response->pages = (int)$this->params['rows'] > 0
             ? ceil((int)$response->count / (int)$this->params['rows'])
             : 0;
-            
+
         if($response->pages >= 1) {
             $response->length = $this->pagingLength;
             $response->currentPage = ((int)$response->offset / (int)$this->params['rows']) + 1;
