@@ -1,7 +1,7 @@
 <?php
 namespace ARP\SolrClient2;
 
-class SolrQuery extends SolrClientCore {
+class SolrQuery extends SolrCore {
     protected $page = 1;
 
     /**
