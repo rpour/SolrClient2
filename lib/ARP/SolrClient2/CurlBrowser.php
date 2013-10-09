@@ -3,15 +3,12 @@ namespace ARP\SolrClient2;
 
 class CurlBrowser {
     private $timeout = 13;
-    private $header = array();
     private $proxy_host = null;
     private $proxy_port = null;
     private $proxy_exclude = null;
-    private $curl_init = null;
 
     public function __construct() {
         $this->header[] = "Connection: close";
-        $this->curl_init = curl_init();
     }
 
     public function httpGet($url) {
@@ -44,8 +41,9 @@ class CurlBrowser {
     }
 
     private function doRequest($method, $url, array $header, $data) {
+        $curlInit = curl_init();
+
         $parsed_url = parse_url($url);
-        $this->header = array_merge($this->header, $header);
 
         if(isset($parsed_url['scheme']) 
             && $parsed_url['scheme'] !== 'http' 
@@ -54,33 +52,34 @@ class CurlBrowser {
         }
         
         if($method === 'GET') {
-            curl_setopt($this->curl_init, CURLOPT_POST, 0);
+            curl_setopt($curlInit, CURLOPT_POST, 0);
         } else if($method === 'POST') {
-            curl_setopt($this->curl_init, CURLOPT_POST, 1);
-            curl_setopt($this->curl_init, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($curlInit, CURLOPT_POST, 1);
+            curl_setopt($curlInit, CURLOPT_POSTFIELDS, $data);
         }
 
-        curl_setopt($this->curl_init, CURLOPT_URL, $url);
-        curl_setopt($this->curl_init, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($this->curl_init, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->curl_init, CURLINFO_HEADER_OUT, true);
-        curl_setopt($this->curl_init, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($curlInit, CURLOPT_URL, $url);
+        curl_setopt($curlInit, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlInit, CURLINFO_HEADER_OUT, true);
+        curl_setopt($curlInit, CURLOPT_TIMEOUT, $this->timeout);
 
-        if(!empty($this->header))
-            curl_setopt($this->curl_init, CURLOPT_HTTPHEADER, $this->header);
+        if(!empty($header))
+            curl_setopt($curlInit, CURLOPT_HTTPHEADER, $header);
         
         if(!empty($this->proxy_host) && !in_array($parsed_url["host"], $this->proxy_exclude)) {
-            curl_setopt($this->curl_init, CURLOPT_PROXY, $this->proxy_host);
-            curl_setopt($this->curl_init, CURLOPT_PROXYPORT, $this->proxy_port);
+            curl_setopt($curlInit, CURLOPT_PROXY, $this->proxy_host);
+            curl_setopt($curlInit, CURLOPT_PROXYPORT, $this->proxy_port);
         }
         
         $response = new \stdClass();
-        $response->content = curl_exec($this->curl_init);
-        $response->header = curl_getInfo($this->curl_init, CURLINFO_HEADER_OUT);
-        $response->status = (int)curl_getInfo($this->curl_init, CURLINFO_HTTP_CODE);  
-        $response->contentType = curl_getInfo($this->curl_init, CURLINFO_CONTENT_TYPE);  
-        $response->error = curl_error($this->curl_init);
+        $response->content = curl_exec($curlInit);
+        $response->header = curl_getInfo($curlInit, CURLINFO_HEADER_OUT);
+        $response->status = (int)curl_getInfo($curlInit, CURLINFO_HTTP_CODE);  
+        $response->contentType = curl_getInfo($curlInit, CURLINFO_CONTENT_TYPE);  
+        $response->error = curl_error($curlInit);
 
+        curl_close($curlInit);
         return $response;
     }
 }
