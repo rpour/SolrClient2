@@ -88,7 +88,7 @@ class SolrCore extends CurlBrowser {
     }
 
     public function addDocument(SolrDocument $document) {
-        $this>jsonUpdate($document->toJson());
+        $this->jsonUpdate($document->toJson());
         return $this;
     }
 
