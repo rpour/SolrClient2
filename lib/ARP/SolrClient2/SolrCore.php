@@ -21,9 +21,11 @@ class SolrCore extends CurlBrowser {
 
         if(is_string($options)) {
             $options = parse_url($options);
-            
-            list($options['path'], $options['core']) 
-                = array_filter(explode('/', $options['path']));
+            $path = array_filter(explode('/', $options['path']));
+            if(count($path) === 2) {
+                $options['core'] = array_pop($path);
+                $options['path'] = array_pop($path);
+            }
         }
 
         $this->host = isset($options['host']) ? $options['host'] : 'localhost';
