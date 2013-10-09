@@ -19,6 +19,13 @@ class SolrCore extends CurlBrowser {
     public function __construct($options) {
         parent::__construct();
 
+        if(is_string($options)) {
+            $options = parse_url($options);
+            
+            list($options['path'], $options['core']) 
+                = array_filter(explode('/', $options['path']));
+        }
+
         $this->host = isset($options['host']) ? $options['host'] : 'localhost';
         $this->port = isset($options['port']) ? $options['port'] : 8080;
         $this->path = isset($options['path']) ? $options['path'] : 'solr';
@@ -35,7 +42,8 @@ class SolrCore extends CurlBrowser {
         );
 
         if(isset($options['params']))
-            $this->params = $this->mergeRecursive($this->params, $options['params']);
+            $this->params = $this->mergeRecursive($this->params, $options['params']);  
+ 
     }
 
     public function host($host) {
