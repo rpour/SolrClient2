@@ -7,10 +7,6 @@ class CurlBrowser {
     private $proxy_port = null;
     private $proxy_exclude = null;
 
-    public function __construct() {
-        $this->header[] = "Connection: close";
-    }
-
     public function httpGet($url) {
         return $this->doRequest('GET', $url, array(), null);
     }

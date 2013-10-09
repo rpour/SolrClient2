@@ -17,8 +17,6 @@ class SolrCore extends CurlBrowser {
      * @param array $options Options.
      */
     public function __construct($options) {
-        parent::__construct();
-
         if(is_string($options)) {
             $options = parse_url($options);
             $path = array_filter(explode('/', $options['path']));
