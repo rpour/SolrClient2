@@ -185,7 +185,7 @@ class SolrCore extends CurlBrowser {
             $url = $this->generateURL('update/json');
         
         $response = $this->httpPost(
-            $url, array('Content-type:application/json'), $content
+            $url, array('Content-type: application/json'), $content
         );
 
         if($response->status !== 200)

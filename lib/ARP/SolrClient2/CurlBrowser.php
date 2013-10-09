@@ -19,7 +19,6 @@ class CurlBrowser {
     }
 
     public function httpPost($url, array $header, $data) {
-        $this->header[] = 'Content-Length: ' . strlen($data);        
         return $this->doRequest('POST', $url, $header, $data);
     }
 
