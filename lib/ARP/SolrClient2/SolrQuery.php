@@ -56,7 +56,7 @@ class SolrQuery extends SolrCore {
                 if($this->autocompleteField === $key)
                     $result->autocomplete = $val;
                 else
-                    $result->facets->$key = $val;
+                    $result->facets[$key] = $val;
             }
         }
 
@@ -142,16 +142,19 @@ class SolrQuery extends SolrCore {
 
     /**
      * Faceting
-     * @param  array  $fields   Fields
+     * @param  mixed  $fields   Fields
      * @param  integer $mincount Returns only fileds more than mincount.
      * @param  string  $sort     Fields.
      * http://wiki.apache.org/solr/SimpleFacetParameters
      */
-    public function facet(array $fields, $mincount = 1, $sort = 'index') {
+    public function facet($fields, $mincount = 1, $sort = 'index') {
+        if(is_string($fields))
+            $fields = array($fields);
+
         $this->params['facet'] = 'on';
         $this->params['facet.field'] = $fields;
         $this->params['facet.mincount'] = $mincount;
-        if(!is_null($sort)) $this->params['facet.sort'] = $sort;
+        $this->params['facet.sort'] = $sort;
         return $this;
     }
 
