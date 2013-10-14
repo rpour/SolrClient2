@@ -126,12 +126,8 @@ class SolrQuery extends SolrCore {
         return $this;
     }
 
-    /**
-     * Set result order.
-     * @param  string $sortBy Order by string.
-     */
-    public function orderBy($sortBy) {
-        $this->params['sort'] = $sortBy;
+    public function orderBy($sort, $direction = 'asc') {
+        $this->params['sort'] = $sort . ' ' . $direction;
         return $this;
     }
 
@@ -184,5 +180,4 @@ class SolrQuery extends SolrCore {
             $string
         );
     }
-
 }

@@ -31,24 +31,6 @@ class SolrClient extends SolrQuery {
         $this->leftWildcard = $leftWildcard;
     }
 
-    public function buildQuery($method, $terms = null) {
-        if(is_null($terms))
-            $terms = $this->searchTerms;
-        array_walk($terms, 'self::' . $method);
-        return implode(' ', $terms);
-    }
-
-    public function forQueryString(&$term) {
-        $term = trim($term);
-
-        if((is_numeric($term) && $this->numericWildcard) || 
-          (!is_numeric($term) && $this->wordWildcard))
-            if($this->leftWildcard)
-                $term = '*' . $this->escape($term) . '*';
-            else
-                $term =  $this->escape($term) . '*';
-    }
-
     public function autocomplete($field, $limit = 10, $sort = 'count') {
         $this->autocompleteField = trim($field);
         $this->autocompleteLimit = (int)$limit;
@@ -56,7 +38,7 @@ class SolrClient extends SolrQuery {
         return $this;
     }
 
-    public function find($string) {
+    public function find($string = '') {
         $this->searchTerms = array_filter(explode(' ', $string));
 
         if($this->autocompleteField !== '') {
@@ -114,5 +96,30 @@ class SolrClient extends SolrQuery {
         }
 
         return $response;
+    }
+
+    private function buildQuery($method, $terms = null) {
+        if(is_null($terms))
+            $terms = $this->searchTerms;
+
+        if(count($terms) !== 0) {
+            array_walk($terms, 'self::' . $method);
+            return implode(' ', $terms);            
+        }
+
+        return null;
+    }
+
+    private function forQueryString(&$term) {
+        $term = trim($term);
+
+        if((is_numeric($term) && $this->numericWildcard) || 
+          (!is_numeric($term) && $this->wordWildcard)) {
+            
+            if($this->leftWildcard)
+                $term = '*' . $this->escape($term) . '*';
+            else
+                $term =  $this->escape($term) . '*';
+        }
     }
 }

@@ -61,7 +61,7 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
-    public function from($core) {
+    public function fromCore($core) {
         $this->core = $core;
         return $this;
     }
