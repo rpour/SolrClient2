@@ -165,7 +165,7 @@ class SolrQuery extends SolrCore {
      */
     public function escape($string) {
         return preg_replace(
-            '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/',
+            '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\/|\\\)/',
             '\\\$1', 
             $string
         );
