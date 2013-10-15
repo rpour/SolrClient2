@@ -17,18 +17,22 @@ class SolrClient extends SolrQuery {
 
     public function pagingLength($length) {
         $this->pagingLength = (int)$length;
+        return $this;
     }
 
     public function wordWildcard($wordWildcard) {
         $this->wordWildcard = $wordWildcard;
+        return $this;
     }
 
     public function numericWildcard($numericWildcard) {
         $this->numericWildcard = $numericWildcard;
+        return $this;
     }
 
     public function leftWildcard($leftWildcard) {
         $this->leftWildcard = $leftWildcard;
+        return $this;
     }
 
     public function autocomplete($field, $limit = 10, $sort = 'count') {
