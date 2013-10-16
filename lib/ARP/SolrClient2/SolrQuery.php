@@ -54,9 +54,9 @@ class SolrQuery extends SolrCore {
         if(isset($content->facet_counts->facet_fields)) {
             foreach($content->facet_counts->facet_fields as $key => $val) {
                 if($this->autocompleteField === $key)
-                    $result->autocomplete = $val;
+                    $result->autocomplete = (array)$val;
                 else
-                    $result->facets[$key] = $val;
+                    $result->facets[$key] = (array)$val;
             }
         }
 
