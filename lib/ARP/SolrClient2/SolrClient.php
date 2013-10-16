@@ -6,6 +6,7 @@ class SolrClient extends SolrQuery {
     protected $wordWildcard = true;
     protected $numericWildcard = false;
     protected $leftWildcard = false;
+    protected $wildcardMinStrlen = 3;
     protected $searchTerms = array();
     protected $autocompleteField = '';
     protected $autocompleteLimit = 10;
@@ -21,17 +22,22 @@ class SolrClient extends SolrQuery {
     }
 
     public function wordWildcard($wordWildcard) {
-        $this->wordWildcard = $wordWildcard;
+        $this->wordWildcard = (boolean)$wordWildcard;
         return $this;
     }
 
     public function numericWildcard($numericWildcard) {
-        $this->numericWildcard = $numericWildcard;
+        $this->numericWildcard = (boolean)$numericWildcard;
         return $this;
     }
 
     public function leftWildcard($leftWildcard) {
-        $this->leftWildcard = $leftWildcard;
+        $this->leftWildcard = (boolean)$leftWildcard;
+        return $this;
+    }
+
+    public function wildcardMinStrlen($wildcardMinStrlen) {
+        $this->wildcardMinStrlen = (int)$wildcardMinStrlen;
         return $this;
     }
 
@@ -118,7 +124,8 @@ class SolrClient extends SolrQuery {
         $term = trim($term);
 
         if((is_numeric($term) && $this->numericWildcard) || 
-          (!is_numeric($term) && $this->wordWildcard)) {
+          (!is_numeric($term) && $this->wordWildcard) &&
+          strlen($term) >= $this->wildcardMinStrlen) {
             
             if($this->leftWildcard)
                 $term = '*' . $this->escape($term) . '*';
