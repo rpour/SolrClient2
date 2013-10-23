@@ -112,17 +112,27 @@ class SolrQuery extends SolrCore {
         return $this;
     }
 
-    public function where($key, $value) {
+    public function where($key, $value, $defaultOperator = 'AND', $innerOperator = 'OR') {
         if(is_array($value)) {
             $tmp = "";
             foreach($value as $val)
-                $tmp .= ' OR ' . $key . ':"' . $this->escapePhrase($val) . '"';
+                $tmp .= ' ' . $innerOperator . ' ' . $key . ':"' . $this->escapePhrase($val) . '"';
 
             if($tmp !== "")
-                $this->appendToFilter("AND (" . substr($tmp, 4) . ")");
+                $this->appendToFilter($defaultOperator . ' (' . substr($tmp, 4) . ')');
         } else
-            $this->appendToFilter('AND ' . $key . ':"' . $this->escapePhrase($value) . '"');
+            $this->appendToFilter($defaultOperator . ' ' . $key . ':"' . $this->escapePhrase($value) . '"');
 
+        return $this;
+    }
+
+    public function orWhere($key, $value, $innerOperator = 'OR') {
+        $this->where($key, $value, 'OR', $innerOperator);
+        return $this;
+    }
+
+    public function andWhere($key, $value, $innerOperator = 'OR') {
+        $this->where($key, $value, 'AND', $innerOperator);
         return $this;
     }
 
