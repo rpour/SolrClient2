@@ -112,26 +112,45 @@ class SolrQuery extends SolrCore {
         return $this;
     }
 
-    public function where($key, $value, $defaultOperator = 'AND', $innerOperator = 'OR') {
-        if(is_array($value)) {
-            $tmp = "";
+    public function where($key, $value = null, $defaultOperator = 'AND', $innerOperator = 'OR') {
+         $tmp = "";
+
+        // many fields ...
+        if(is_array($key) && is_null($value)) {
+            foreach($key as $k => $v) {
+                // ... and many values
+                if(is_string($k) && is_array($v))
+                    foreach($v as $val)
+                        $tmp .= ' ' . $innerOperator . ' ' . $k . ':"' . $this->escapePhrase($val) . '"';
+                // ... one value
+                else if(is_string($k))
+                    $tmp .= ' ' . $innerOperator . ' ' . $k . ':"' . $this->escapePhrase((string)$v) . '"';
+            }
+
+            if($tmp !== "")
+                $this->appendToFilter($defaultOperator . ' (' . trim(substr($tmp, 4)) . ')');
+
+        // one field and many values
+        } else if(is_string($key) && is_array($value)) {
             foreach($value as $val)
                 $tmp .= ' ' . $innerOperator . ' ' . $key . ':"' . $this->escapePhrase($val) . '"';
 
-            if($tmp !== "")
-                $this->appendToFilter($defaultOperator . ' (' . substr($tmp, 4) . ')');
-        } else
-            $this->appendToFilter($defaultOperator . ' ' . $key . ':"' . $this->escapePhrase($value) . '"');
+            $this->appendToFilter($defaultOperator . ' (' . trim(substr($tmp, 4)) . ')');
+
+        // one field an one value
+        } else if(is_string($key)) {
+            $this->appendToFilter($defaultOperator . ' ' . $key . ':"' . $this->escapePhrase((string)$value) . '"');
+        }
 
         return $this;
     }
 
-    public function orWhere($key, $value, $innerOperator = 'OR') {
+    public function orWhere($key, $value = null, $innerOperator = 'OR') {
         $this->where($key, $value, 'OR', $innerOperator);
         return $this;
     }
 
-    public function andWhere($key, $value, $innerOperator = 'OR') {
+    public function andWhere($key, $value = null, $innerOperator = 'OR') {
         $this->where($key, $value, 'AND', $innerOperator);
         return $this;
     }
