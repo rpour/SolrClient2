@@ -2,7 +2,7 @@
 namespace ARP\SolrClient2;
 
 /**
- * SolrDocument class.
+ * SolrDocument
  * @author A.R.Pour
  */
 class SolrDocument {
