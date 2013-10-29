@@ -1,6 +1,10 @@
 <?php
 namespace ARP\SolrClient2;
 
+/**
+ * SolrCore
+ * @author A.R.Pour
+ */
 class SolrCore extends CurlBrowser {
     protected $host = null;
     protected $port = null;

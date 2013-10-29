@@ -1,6 +1,10 @@
 <?php
 namespace ARP\SolrClient2;
 
+/**
+ * CurlBrowser
+ * @author A.R.Pour
+ */
 class CurlBrowser {
     private $timeout = 13;
     private $proxy_host = null;

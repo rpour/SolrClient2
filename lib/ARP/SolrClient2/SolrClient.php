@@ -1,6 +1,10 @@
 <?php
 namespace ARP\SolrClient2;
 
+/**
+ * SolrClient
+ * @author A.R.Pour
+ */
 class SolrClient extends SolrQuery {
     protected $pagingLength = 10;
     protected $wordWildcard = true;
@@ -67,42 +71,12 @@ class SolrClient extends SolrQuery {
 
         $response = $this->exec($this->buildQuery('forQueryString'));
 
-        /***********************************************************************
-         * PREPAIR PAGING
-         ***********************************************************************/
-        $response->pages = (int)$this->params['rows'] > 0
-            ? ceil((int)$response->count / (int)$this->params['rows'])
-            : 0;
+        // PREPAIR PAGING
+        if(isset($response->count) && isset($response->offset)) {
+            $paging = new Paging($response->count, $this->params['rows'], null, $response->offset);
 
-        if($response->pages >= 1) {
-            $response->length = $this->pagingLength;
-            $response->currentPage = ((int)$response->offset / (int)$this->params['rows']) + 1;
-
-            // INDEX START
-            if($response->currentPage > ($response->length / 2))
-                $response->startPage = $response->currentPage - floor($response->length/2);
-            else 
-                $response->startPage = 1;
-            
-            // INDEX END
-            if(($response->startPage + $response->length) > $response->pages && $response->pages > $response->length)
-                $response->endPage = ceil($response->pages);
-            else
-                $response->endPage = $response->startPage + $response->length;
-
-            // END OF LIST?
-            if($response->endPage - $response->startPage < $response->length)
-                $response->startPage = $response->startPage 
-                    - ($response->length - ($response->endPage - $response->startPage));
-
-            if($response->startPage < 1)
-                $response->startPage = 1;
-            
-            if($response->currentPage < $response->pages)
-                $response->nextPage = $response->currentPage + 1;
-
-            if($response->currentPage > 1)
-                $response->prevPage = $response->currentPage - 1;
+            foreach($paging->calculate() as $key => $val)
+                $response->$key = $val;
         }
 
         return $response;

@@ -1,6 +1,10 @@
 <?php
 namespace ARP\SolrClient2;
 
+/**
+ * SolrQuery
+ * @author A.R.Pour
+ */
 class SolrQuery extends SolrCore {
     protected $page = 1;
 
