@@ -1,4 +1,7 @@
 # SolrClient2
+[Configuration][1]
+[Query][2]
+[Dokuments][3]
 <table>
     <thead>
         <tr>
@@ -10,13 +13,13 @@
     <tbody>
         <tr>
             <td>
-* [Configuration][1]
+[Configuration][1]
             </td>
             <td>
-* [Query][2]
+[Query][2]
             </td>
             <td>
-* [Dokuments][3]
+[Dokuments][3]
             </td>
         </tr>
     </tbody>
