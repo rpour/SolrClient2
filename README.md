@@ -10,17 +10,17 @@
     <tbody>
         <tr>
             <td>
-* [Configuration][conf]
+* [Configuration][1]
             </td>
             <td>
-* [Query][query]
+* [Query][2]
             </td>
             <td>
-* [Dokuments][docs]
+* [Dokuments][3]
             </td>
         </tr>
     </tbody>
 </table>
-[conf]:doc/conf.md
-[query]:doc/query.md
-[docs]:doc/docs.md
+[1]:doc/conf.md
+[2]:doc/query.md
+[3]:doc/docs.md
