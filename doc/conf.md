@@ -23,7 +23,7 @@ $client = new SolrClient(array(
     'version' => 4
 ));
 ```
-... or
+... or ...
 
 ```php
 use ARP\SolrClient2\SolrClient; 
@@ -35,13 +35,22 @@ $client ->host('localhost')
         ->version(4);
 ```
 
+... or
+
+```php
+use ARP\SolrClient2\SolrClient; 
+
+$client = new SolrClient("http:\\localhost:8080\solr");
+```
+
 ## <a name="extended"></a>Extended
 
 ```php
 use ARP\SolrClient2\SolrClient; 
 
 $client = new SolrClient(array(
-    'core' => 'core0'
+    'port' => 80,
+    'core' => 'core0',
     'params' => array(
         'fq' => 'category:user'
     )
@@ -51,7 +60,8 @@ $client = new SolrClient(array(
 ```php
 use ARP\SolrClient2\SolrClient; 
 
-$client ->fromCore('core0')
+$client ->port(80)
+        ->fromCore('core0')
         ->params(array(
             'fq' => 'category:user'
         ));
