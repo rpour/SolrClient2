@@ -1,12 +1,19 @@
 # Core Class
+* [Usage](core.md#usage)
+* [Add document](core.md#addDocument)
+* [Add documents](core.md#addDocuments)
+* [Append document](core.md#appendDocument)
+* [Delete all](core.md#deleteAll)
+* [Delete by query](core.md#deleteByQuery)
 
-## <a href="../README.md">&laquo;</a><a name="usage"></a>Usage
+## <a href="../README.md">&laquo;</a> <a name="usage"></a>Usage
 ```php
 use ARP\SolrClient2\SolrCore; 
 
 $client = new SolrCore($options);
 ```
-## <a name="addDocument"></a>Add document
+
+## <a href="../README.md">&laquo;</a> <a name="addDocument"></a>Add document
 ```php
 $doc = $client->newDocument();
 $doc->id = 1;
@@ -15,7 +22,7 @@ $client->addDocument($doc);
 $client->commit();
 ```
 
-## <a name="addDocuments"></a>Add documents
+## <a href="../README.md">&laquo;</a> <a name="addDocuments"></a>Add documents
 ```php
 $documents = array();
 
@@ -32,7 +39,7 @@ $client->addDocuments($documents);
 $client->commit();
 ```
 
-## <a name="appendDocument"></a>Append documents
+## <a href="../README.md">&laquo;</a> <a name="appendDocument"></a>Append documents
 ```php
 $client->cacheSize(20480);
 
@@ -47,13 +54,13 @@ foreach(array('A', 'B', 'C') as $data) {
 $client->commit();
 ```
 
-## <a name="deleteAll"></a>Delete all
+## <a href="../README.md">&laquo;</a> <a name="deleteAll"></a>Delete all
 ```php
 $client->deleteAll();
 $client->commit();
 ```
 
-## <a name="deleteByQuery"></a>Delete by query
+## <a href="../README.md">&laquo;</a> <a name="deleteByQuery"></a>Delete by query
 ```php
 $client->deleteByQuery('*:*');
 $client->commit();

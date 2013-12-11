@@ -1,32 +1,41 @@
-# Query
+# Query Class
+* [Usage](doc/query.md#usage)
+* [Select](doc/query.md#select)
+* [Offset and limit](doc/query.md#offset)
+* [Where](doc/query.md#where)
 
-## Examples
-* [Simple](#simple)
-* [Extended](#extended)
-
-## <a name="simple"></a>Simple
-This example ...
+## <a href="../README.md">&laquo;</a> <a name="usage"></a>Usage
 ```php
-$result = $client->find();
+use ARP\SolrClient2\SolrQuery; 
+
+$client = new SolrQuery($options);
 ```
 
-... is equal to ...
-
+## <a href="../README.md">&laquo;</a> <a name="select"></a>Usage
 ```php
-$result = $client   ->select('*')
-                    ->limit(20)
-                    ->page(1)
-                    ->exec('*:*');
+$client
+     ->select('*,score')
+     ->exec('*:*');
 ```
 
-## <a name="extended"></a>Extended
+## <a href="../README.md">&laquo;</a> <a name="offset"></a>Usage
 ```php
-$result = $client   ->select('*,score')
-                    ->limit(10)
-                    ->page(2)
-                    ->where('document', 'valid')
-                    ->where('user', array('superuser', 'admin'))
-                    ->orderBy('name')
-                    ->facet(array('category'))
-                    ->find();
+$client
+     ->limit(10)
+     ->offset(10)
+     ->exec('*:*');
+
+// or
+
+$client
+     ->limit(10)
+     ->page(2)
+     ->exec('*:*');;
+```
+
+## <a href="../README.md">&laquo;</a> <a name="where"></a>Usage
+```php
+$client
+     ->where('user', 'guest')
+     ->exec('*:*');
 ```
