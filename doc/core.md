@@ -1,6 +1,6 @@
 # Core Class
 
-## <a href="README.md">&laquo;</a><a name="usage"></a>Usage
+## <a href="../README.md">&laquo;</a><a name="usage"></a>Usage
 ```php
 use ARP\SolrClient2\SolrCore; 
 
