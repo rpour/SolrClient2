@@ -6,7 +6,7 @@
 
 [Query](doc/query.md)
 * [Usage](doc/query.md#usage)
-* [Offset and limit](doc/query.md#offset)
+* [Select](doc/query.md#select)
 * [Offset and limit](doc/query.md#offset)
 * [Where](doc/query.md#where)
 
