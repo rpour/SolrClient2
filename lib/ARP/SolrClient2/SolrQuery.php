@@ -132,22 +132,22 @@ class SolrQuery extends SolrCore {
             }
 
             if($tmp !== "")
-                $this->appendToFilter(trim(substr($tmp, 4)));
+                $this->appendToFilter(trim(substr($tmp, 4)), $cached);
 
         // one field and many values
         } else if(is_string($key) && is_array($value)) {
             foreach($value as $val)
                 $tmp .= ' ' . $innerOperator . ' ' . $key . ':"' . $this->escapePhrase($val) . '"';
 
-            $this->appendToFilter(trim(substr($tmp, 4)));
+            $this->appendToFilter(trim(substr($tmp, 4)), $cached);
 
         // one field an one value
         } else if(is_string($key) && !is_null($value)) {
-            $this->appendToFilter($key . ':"' . $this->escapePhrase((string)$value) . '"');
+            $this->appendToFilter($key . ':"' . $this->escapePhrase((string)$value) . '"', $cached);
 
         // raw filterquery
         } else if (is_string($key)) {
-            $this->appendToFilter($key);
+            $this->appendToFilter($key, $cached);
         }
 
         return $this;

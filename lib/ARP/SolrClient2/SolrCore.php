@@ -166,7 +166,10 @@ class SolrCore extends CurlBrowser {
         return $arr1;
     }
 
-    protected function appendToFilter($string) {
+    protected function appendToFilter($string, $cached = true) {
+        if(!$cached)
+            $string = '{!cache=false}' . $string;
+        
         if(!isset($this->params['fq']))
             $this->params['fq'] = array($string);
         else
