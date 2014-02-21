@@ -115,8 +115,8 @@ class SolrQuery extends SolrCore {
         $this->params['fl'] = $select;
         return $this;
     }
-
-    public function where($key, $value = null, $defaultOperator = 'AND', $innerOperator = 'OR') {
+    // TODO: REMOVE DEFAULT OPERATOR
+    public function where($key, $value = null, $cached = true, $innerOperator = 'OR') {
          $tmp = "";
 
         // many fields ...
@@ -132,30 +132,24 @@ class SolrQuery extends SolrCore {
             }
 
             if($tmp !== "")
-                $this->appendToFilter($defaultOperator . ' (' . trim(substr($tmp, 4)) . ')');
+                $this->appendToFilter(trim(substr($tmp, 4)));
 
         // one field and many values
         } else if(is_string($key) && is_array($value)) {
             foreach($value as $val)
                 $tmp .= ' ' . $innerOperator . ' ' . $key . ':"' . $this->escapePhrase($val) . '"';
 
-            $this->appendToFilter($defaultOperator . ' (' . trim(substr($tmp, 4)) . ')');
+            $this->appendToFilter(trim(substr($tmp, 4)));
 
         // one field an one value
-        } else if(is_string($key)) {
-            $this->appendToFilter($defaultOperator . ' ' . $key . ':"' . $this->escapePhrase((string)$value) . '"');
+        } else if(is_string($key) && !is_null($value)) {
+            $this->appendToFilter($key . ':"' . $this->escapePhrase((string)$value) . '"');
+
+        // raw filterquery
+        } else if (is_string($key)) {
+            $this->appendToFilter($key);
         }
 
-        return $this;
-    }
-
-    public function orWhere($key, $value = null, $innerOperator = 'OR') {
-        $this->where($key, $value, 'OR', $innerOperator);
-        return $this;
-    }
-
-    public function andWhere($key, $value = null, $innerOperator = 'OR') {
-        $this->where($key, $value, 'AND', $innerOperator);
         return $this;
     }
 

@@ -167,10 +167,10 @@ class SolrCore extends CurlBrowser {
     }
 
     protected function appendToFilter($string) {
-        if(!isset($this->params['fq']) || $this->params['fq'] === '')
-            $this->params['fq'] = substr($string, 4);
+        if(!isset($this->params['fq']))
+            $this->params['fq'] = array($string);
         else
-            $this->params['fq'] .= ' ' . $string;
+            $this->params['fq'][] = $string;
     }
 
     private function generateURL($path = '') {
