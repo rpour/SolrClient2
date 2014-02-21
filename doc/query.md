@@ -1,6 +1,4 @@
 # Query
-
-## Examples
 * [Simple](#simple)
 * [Extended](#extended)
 
