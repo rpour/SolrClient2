@@ -15,9 +15,20 @@ class SolrClient extends SolrQuery {
     protected $autocompleteField = '';
     protected $autocompleteLimit = 10;
     protected $autocompleteSort = 'count';
+    protected $wildcard = '*';
 
     public function __construct($options = null) {
         parent::__construct($options);
+    }
+
+    public function fuzzy($fuzzy, $percent = '') {
+        $this->wildcard = '*';
+        
+        if ($fuzzy && $this->version >= 4) {
+            $this->wildcard = '~' . $percent;
+        }
+
+        return $this;
     }
 
     public function pagingLength($length) {
@@ -101,10 +112,12 @@ class SolrClient extends SolrQuery {
           (!is_numeric($term) && $this->wordWildcard) &&
           strlen($term) >= $this->wildcardMinStrlen) {
             
+            $word = $this->escape($term) . $this->wildcard;
+
             if($this->leftWildcard)
-                $term = '*' . $this->escape($term) . '*';
-            else
-                $term =  $this->escape($term) . '*';
+                $word = $this->wildcard . $word;
+
+            $term = '(' . $this->escape($term) . '^1 OR ' . $word . '^0.5)';
         }
     }
 }

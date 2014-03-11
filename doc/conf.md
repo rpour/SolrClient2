@@ -1,6 +1,4 @@
 # Configuration
-
-## Examples
 * [Simple](#simple)
 * [Extended](#extended)
 
@@ -34,6 +32,9 @@ $client ->host('localhost')
         ->path('solr')
         ->version(4);
 ```
+... or ...
+```php
+use ARP\SolrClient2\SolrClient; 
 
 ... or
 
@@ -44,7 +45,6 @@ $client = new SolrClient("http:\\localhost:8080\solr");
 ```
 
 ## <a name="extended"></a>Extended
-
 ```php
 use ARP\SolrClient2\SolrClient; 
 
