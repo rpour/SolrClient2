@@ -15,19 +15,15 @@ class SolrClient extends SolrQuery {
     protected $autocompleteField = '';
     protected $autocompleteLimit = 10;
     protected $autocompleteSort = 'count';
-    protected $wildcard = '*';
+    protected $fuzzy = false;
 
     public function __construct($options = null) {
         parent::__construct($options);
     }
 
     public function fuzzy($fuzzy, $percent = '') {
-        $this->wildcard = '*';
-        
-        if ($fuzzy && $this->version >= 4) {
-            $this->wildcard = '~' . $percent;
-        }
-
+        if ($fuzzy && $this->version >= 4) 
+            $this->fuzzy = '~' . $percent;
         return $this;
     }
 
@@ -80,7 +76,7 @@ class SolrClient extends SolrQuery {
             $this->params['f.' . $this->autocompleteField . '.facet.mincount'] = 1;
         }
 
-        $response = $this->exec($this->buildQuery('forQueryString'));
+        $response = $this->exec($this->buildQuery('standardQuery'));
 
         // PREPAIR PAGING
         if(isset($response->count) && isset($response->offset)) {
@@ -99,25 +95,40 @@ class SolrClient extends SolrQuery {
 
         if(count($terms) !== 0) {
             array_walk($terms, 'self::' . $method);
-            return implode(' ', $terms);            
+            return implode(' ', $terms);
         }
 
         return null;
     }
 
-    private function forQueryString(&$term) {
-        $term = trim($term);
+    private function standardQuery(&$term) {
+        $rawTerm = trim($term);
 
-        if((is_numeric($term) && $this->numericWildcard) || 
-          (!is_numeric($term) && $this->wordWildcard) &&
-          strlen($term) >= $this->wildcardMinStrlen) {
-            
-            $word = $this->escape($term) . $this->wildcard;
+        // NORMAL
+        $term = $this->escape($rawTerm) . '^1';
 
-            if($this->leftWildcard)
-                $word = $this->wildcard . $word;
+        // WILDCARD
+        if((is_numeric($rawTerm) && $this->numericWildcard) 
+            || (!is_numeric($rawTerm) && $this->wordWildcard) 
+            && strlen($rawTerm) >= $this->wildcardMinStrlen) {
 
-            $term = '(' . $this->escape($term) . '^1 OR ' . $word . '^0.5)';
+            $term .= ' OR ' 
+                . ($this->leftWildcard ? '*' : '')
+                . $this->escape($rawTerm) 
+                . '*^0.6';
         }
+
+        // FUZZY
+        if(!empty($this->fuzzy) 
+            && strlen($rawTerm) >= $this->wildcardMinStrlen
+            && !is_numeric($rawTerm)) {
+
+            $term .= ' OR ' 
+                . $this->escape($rawTerm)
+                . $this->fuzzy
+                . '^0.3';
+        }
+
+        $term = '(' . $term . ')';
     }
 }
