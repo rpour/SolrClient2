@@ -3,6 +3,14 @@
 [Configuration](doc/conf.md)
 
 [Client](doc/client.md)
+* [Fuzzy](doc/client.md#fuzzy)
+* [Paging length](doc/client.md#pagingLength)
+* [Word wildcard](doc/client.md#wordWildcard)
+* [Numeric wildcard](doc/client.md#numericWildcard)
+* [Left wildcard](doc/client.md#leftWildcard)
+* [Wildcard min stringlength](doc/client.md#wildcardMinStrlen)
+* [Autocomplete](doc/client.md#autocomplete)
+* [Find](doc/client.md#find)
 
 [Query](doc/query.md)
 * [Usage](doc/query.md#usage)
@@ -21,5 +29,10 @@
 [Document](doc/document.md)
 
 [Browser](doc/browser.md)
+* [HTTP GET](doc/browser.md#httpGet)
+* [HTTP POST](doc/browser.md#httpPost)
+* [Timeout](doc/browser.md#timeout)
+* [Proxy](doc/browser.md#proxy)
+* [Exclude Host](doc/browser.md#excludeHost)
 
 [Paging](doc/paging.md)

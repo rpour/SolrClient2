@@ -6,7 +6,7 @@
 
 ## <a href="../README.md">&laquo;</a> <a name="usage"></a>Usage
 ```php
-use ARP\SolrClient2\SolrQuery; 
+use ARP\SolrClient2\SolrQuery;
 
 $client = new SolrQuery($options);
 ```
@@ -30,7 +30,7 @@ $client
 $client
      ->limit(10)
      ->page(2)
-     ->exec('*:*');;
+     ->exec('*:*');
 ```
 
 ## <a href="../README.md">&laquo;</a> <a name="where"></a>Where
