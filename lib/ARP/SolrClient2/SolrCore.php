@@ -1,6 +1,9 @@
 <?php
 namespace ARP\SolrClient2;
 
+require_once __DIR__ . '/SolrDocument.php';
+require_once __DIR__ . '/CurlBrowser.php';
+
 /**
  * SolrCore
  * @author A.R.Pour

@@ -1,6 +1,9 @@
 <?php
 namespace ARP\SolrClient2;
 
+require_once __DIR__ . '/Paging.php';
+require_once __DIR__ . '/SolrQuery.php';
+
 /**
  * SolrClient
  * @author A.R.Pour
