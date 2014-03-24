@@ -10,7 +10,7 @@ class SolrDocument {
 
     public function __construct() {
         $this->_doc['commitWithin'] = 0;
-        /* 
+        /*
         Not implemented
             allowDups
             overwritePending
@@ -75,7 +75,7 @@ class SolrDocument {
     public function solrDate($date = null) {
         $return = '';
         $dateObj = null;
-        
+
         if(is_string($date) && preg_match('/[\d]{4}\-[\d]{2}\-[\d]{2}/', $date)) {
             $dateObj = new \DateTime($date);
         } else {
@@ -95,7 +95,7 @@ class SolrDocument {
                 return $this->_doc['doc'][$field]['value'];
             }
             return $this->_doc['doc'][$field];
-        } 
+        }
         return null;
     }
 
