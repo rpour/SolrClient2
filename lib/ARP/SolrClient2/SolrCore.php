@@ -1,6 +1,9 @@
 <?php
 namespace ARP\SolrClient2;
 
+require_once __DIR__ . '/SolrDocument.php';
+require_once __DIR__ . '/CurlBrowser.php';
+
 /**
  * SolrCore
  * @author A.R.Pour
@@ -46,8 +49,8 @@ class SolrCore extends CurlBrowser {
         );
 
         if(isset($options['params']))
-            $this->params = $this->mergeRecursive($this->params, $options['params']);  
- 
+            $this->params = $this->mergeRecursive($this->params, $options['params']);
+
     }
 
     public function host($host) {
@@ -65,9 +68,15 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
-    public function fromCore($core) {
+    public function core($core) {
         $this->core = $core;
         return $this;
+    }
+
+    // todo: remove me;
+    public function fromCore($core) {
+        trigger_error("formCore is deprecated.", E_USER_NOTICE);
+        return $this->core($core);
     }
 
     public function version($version) {
@@ -99,7 +108,7 @@ class SolrCore extends CurlBrowser {
 
         foreach($documents as $document)
             $json .= substr($document->toJson(),1,-1) . ',';
-        
+
         $this->jsonUpdate('{' . substr($json,0,-1) . '}');
         return $this;
     }
@@ -128,15 +137,13 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
-    public function optimize($waitFlush = false, $waitSearcher = false) {
-        $this->jsonUpdate('{"optimize": {
-            "waitSearcher":' . ($waitSearcher ? 'true' : 'false') . ' 
-        }}');
+    public function optimize($waitSearcher = false) {
+        $this->jsonUpdate('{"optimize": {"waitSearcher":' . $waitSearcher ? 'true' : 'false' . '}}', false);
         return $this;
     }
 
     public function queryInfo() {
-        return urldecode($this->content) . 
+        return urldecode($this->content) .
             '<pre>' . print_r($this->params, true) . '</pre>';
     }
 
@@ -145,11 +152,11 @@ class SolrCore extends CurlBrowser {
         $this->content = preg_replace('/%5B([\d]{1,2})%5D=/', '=', $this->content);
 
         $response = $this->httpPost(
-            $this->generateURL('select'), 
-            array('Content-type: application/x-www-form-urlencoded'), 
+            $this->generateURL('select'),
+            array('Content-type: application/x-www-form-urlencoded'),
             $this->content
         );
-        
+
         if($response->status !== 200)
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
 
@@ -169,7 +176,7 @@ class SolrCore extends CurlBrowser {
     protected function appendToFilter($string, $cached = true) {
         if(!$cached)
             $string = '{!cache=false}' . $string;
-        
+
         if(!isset($this->params['fq']))
             $this->params['fq'] = array($string);
         else
@@ -185,17 +192,17 @@ class SolrCore extends CurlBrowser {
             . ($path == '' ?: '/' . $path);
     }
 
-    private function jsonUpdate($content) {
+    private function jsonUpdate($content, $checkStatus = true) {
         if($this->version == 4)
             $url = $this->generateURL('update');
-        else 
+        else
             $url = $this->generateURL('update/json');
-        
+
         $response = $this->httpPost(
             $url, array('Content-type: application/json'), $content
         );
 
-        if($response->status !== 200)
+        if($checkStatus && $response->status !== 200)
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
 
         return $response;

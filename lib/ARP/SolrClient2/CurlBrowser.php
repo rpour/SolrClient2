@@ -45,12 +45,12 @@ class CurlBrowser {
 
         $parsed_url = parse_url($url);
 
-        if(isset($parsed_url['scheme']) 
-            && $parsed_url['scheme'] !== 'http' 
+        if(isset($parsed_url['scheme'])
+            && $parsed_url['scheme'] !== 'http'
             && $parsed_url['scheme'] !== 'https') {
             return false;
         }
-        
+
         if($method === 'GET') {
             curl_setopt($curlInit, CURLOPT_POST, 0);
         } else if($method === 'POST') {
@@ -66,17 +66,17 @@ class CurlBrowser {
 
         if(!empty($header))
             curl_setopt($curlInit, CURLOPT_HTTPHEADER, $header);
-        
+
         if(!empty($this->proxy_host) && !in_array($parsed_url["host"], $this->proxy_exclude)) {
             curl_setopt($curlInit, CURLOPT_PROXY, $this->proxy_host);
             curl_setopt($curlInit, CURLOPT_PROXYPORT, $this->proxy_port);
         }
-        
+
         $response = new \stdClass();
         $response->content = curl_exec($curlInit);
         $response->header = curl_getInfo($curlInit, CURLINFO_HEADER_OUT);
-        $response->status = (int)curl_getInfo($curlInit, CURLINFO_HTTP_CODE);  
-        $response->contentType = curl_getInfo($curlInit, CURLINFO_CONTENT_TYPE);  
+        $response->status = (int)curl_getInfo($curlInit, CURLINFO_HTTP_CODE);
+        $response->contentType = curl_getInfo($curlInit, CURLINFO_CONTENT_TYPE);
         $response->error = curl_error($curlInit);
 
         curl_close($curlInit);
