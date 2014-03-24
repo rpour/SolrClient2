@@ -46,8 +46,8 @@ class SolrCore extends CurlBrowser {
         );
 
         if(isset($options['params']))
-            $this->params = $this->mergeRecursive($this->params, $options['params']);  
- 
+            $this->params = $this->mergeRecursive($this->params, $options['params']);
+
     }
 
     public function host($host) {
@@ -65,7 +65,7 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
-    public function fromCore($core) {
+    public function core($core) {
         $this->core = $core;
         return $this;
     }
@@ -99,7 +99,7 @@ class SolrCore extends CurlBrowser {
 
         foreach($documents as $document)
             $json .= substr($document->toJson(),1,-1) . ',';
-        
+
         $this->jsonUpdate('{' . substr($json,0,-1) . '}');
         return $this;
     }
@@ -136,7 +136,7 @@ class SolrCore extends CurlBrowser {
     }
 
     public function queryInfo() {
-        return urldecode($this->content) . 
+        return urldecode($this->content) .
             '<pre>' . print_r($this->params, true) . '</pre>';
     }
 
@@ -145,11 +145,11 @@ class SolrCore extends CurlBrowser {
         $this->content = preg_replace('/%5B([\d]{1,2})%5D=/', '=', $this->content);
 
         $response = $this->httpPost(
-            $this->generateURL('select'), 
-            array('Content-type: application/x-www-form-urlencoded'), 
+            $this->generateURL('select'),
+            array('Content-type: application/x-www-form-urlencoded'),
             $this->content
         );
-        
+
         if($response->status !== 200)
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
 
@@ -169,7 +169,7 @@ class SolrCore extends CurlBrowser {
     protected function appendToFilter($string, $cached = true) {
         if(!$cached)
             $string = '{!cache=false}' . $string;
-        
+
         if(!isset($this->params['fq']))
             $this->params['fq'] = array($string);
         else
@@ -188,9 +188,9 @@ class SolrCore extends CurlBrowser {
     private function jsonUpdate($content) {
         if($this->version == 4)
             $url = $this->generateURL('update');
-        else 
+        else
             $url = $this->generateURL('update/json');
-        
+
         $response = $this->httpPost(
             $url, array('Content-type: application/json'), $content
         );

@@ -22,7 +22,7 @@ class SolrClient extends SolrQuery {
     }
 
     public function fuzzy($fuzzy, $percent = '') {
-        if ($fuzzy && $this->version >= 4) 
+        if ($fuzzy && $this->version >= 4)
             $this->fuzzy = '~' . $percent;
         return $this;
     }
@@ -108,22 +108,22 @@ class SolrClient extends SolrQuery {
         $term = $this->escape($rawTerm) . '^1';
 
         // WILDCARD
-        if((is_numeric($rawTerm) && $this->numericWildcard) 
-            || (!is_numeric($rawTerm) && $this->wordWildcard) 
+        if((is_numeric($rawTerm) && $this->numericWildcard)
+            || (!is_numeric($rawTerm) && $this->wordWildcard)
             && strlen($rawTerm) >= $this->wildcardMinStrlen) {
 
-            $term .= ' OR ' 
+            $term .= ' OR '
                 . ($this->leftWildcard ? '*' : '')
-                . $this->escape($rawTerm) 
+                . $this->escape($rawTerm)
                 . '*^0.6';
         }
 
         // FUZZY
-        if(!empty($this->fuzzy) 
+        if(!empty($this->fuzzy)
             && strlen($rawTerm) >= $this->wildcardMinStrlen
             && !is_numeric($rawTerm)) {
 
-            $term .= ' OR ' 
+            $term .= ' OR '
                 . $this->escape($rawTerm)
                 . $this->fuzzy
                 . '^0.3';
