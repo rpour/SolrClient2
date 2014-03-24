@@ -73,6 +73,12 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
+    // todo: remove me;
+    public function fromCore($core) {
+        trigger_error("formCore is deprecated.", E_USER_NOTICE);
+        return $this->core($core);
+    }
+
     public function version($version) {
         $this->version = $version;
         return $this;
@@ -131,10 +137,8 @@ class SolrCore extends CurlBrowser {
         return $this;
     }
 
-    public function optimize($waitFlush = false, $waitSearcher = false) {
-        $this->jsonUpdate('{"optimize": {
-            "waitSearcher":' . ($waitSearcher ? 'true' : 'false') . ' 
-        }}');
+    public function optimize($waitSearcher = false) {
+        $this->jsonUpdate('{"optimize": {"waitSearcher":' . $waitSearcher ? 'true' : 'false' . '}}', false);
         return $this;
     }
 
@@ -188,7 +192,7 @@ class SolrCore extends CurlBrowser {
             . ($path == '' ?: '/' . $path);
     }
 
-    private function jsonUpdate($content) {
+    private function jsonUpdate($content, $checkStatus = true) {
         if($this->version == 4)
             $url = $this->generateURL('update');
         else
@@ -198,7 +202,7 @@ class SolrCore extends CurlBrowser {
             $url, array('Content-type: application/json'), $content
         );
 
-        if($response->status !== 200)
+        if($checkStatus && $response->status !== 200)
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
 
         return $response;
