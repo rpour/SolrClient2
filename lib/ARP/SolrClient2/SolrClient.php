@@ -8,7 +8,8 @@ require_once __DIR__ . '/SolrQuery.php';
  * SolrClient
  * @author A.R.Pour
  */
-class SolrClient extends SolrQuery {
+class SolrClient extends SolrQuery
+{
     protected $pagingLength = 10;
     protected $wordWildcard = true;
     protected $numericWildcard = false;
@@ -20,58 +21,70 @@ class SolrClient extends SolrQuery {
     protected $autocompleteSort = 'count';
     protected $fuzzy = false;
 
-    public function __construct($options = null) {
+    public function __construct($options = null)
+    {
         parent::__construct($options);
     }
 
-    public function fuzzy($fuzzy, $percent = '') {
-        if ($fuzzy && $this->version >= 4)
+    public function fuzzy($fuzzy, $percent = '')
+    {
+        if ($fuzzy && $this->version >= 4) {
             $this->fuzzy = '~' . $percent;
+        }
+
         return $this;
     }
 
-    public function pagingLength($length) {
+    public function pagingLength($length)
+    {
         $this->pagingLength = (int)$length;
         return $this;
     }
 
-    public function wordWildcard($wordWildcard) {
+    public function wordWildcard($wordWildcard)
+    {
         $this->wordWildcard = (boolean)$wordWildcard;
         return $this;
     }
 
-    public function numericWildcard($numericWildcard) {
+    public function numericWildcard($numericWildcard)
+    {
         $this->numericWildcard = (boolean)$numericWildcard;
         return $this;
     }
 
-    public function leftWildcard($leftWildcard) {
+    public function leftWildcard($leftWildcard)
+    {
         $this->leftWildcard = (boolean)$leftWildcard;
         return $this;
     }
 
-    public function wildcardMinStrlen($wildcardMinStrlen) {
+    public function wildcardMinStrlen($wildcardMinStrlen)
+    {
         $this->wildcardMinStrlen = (int)$wildcardMinStrlen;
         return $this;
     }
 
-    public function autocomplete($field, $limit = 10, $sort = 'count') {
+    public function autocomplete($field, $limit = 10, $sort = 'count')
+    {
         $this->autocompleteField = trim($field);
         $this->autocompleteLimit = (int)$limit;
         $this->autocompleteSort = $sort;
         return $this;
     }
 
-    public function find($string = '') {
+    public function find($string = '')
+    {
         $this->searchTerms = array_filter(explode(' ', $string));
 
-        if($this->autocompleteField !== '') {
+        if ($this->autocompleteField !== '') {
             $this->params['facet'] = 'on';
 
-            if(!isset($this->params['facet.field']))
+            if (!isset($this->params['facet.field'])) {
                 $this->params['facet.field'] = array($this->autocompleteField);
-            else
+            } else {
                 $this->params['facet.field'][] = $this->autocompleteField;
+            }
 
             $this->params['f.' . $this->autocompleteField . '.facet.sort'] = $this->autocompleteSort;
             $this->params['f.' . $this->autocompleteField . '.facet.limit'] = $this->autocompleteLimit;
@@ -82,21 +95,24 @@ class SolrClient extends SolrQuery {
         $response = $this->exec($this->buildQuery('standardQuery'));
 
         // PREPAIR PAGING
-        if(isset($response->count) && isset($response->offset)) {
+        if (isset($response->count) && isset($response->offset)) {
             $paging = new Paging($response->count, $this->params['rows'], null, $response->offset);
 
-            foreach($paging->calculate() as $key => $val)
+            foreach ($paging->calculate() as $key => $val) {
                 $response->$key = $val;
+            }
         }
 
         return $response;
     }
 
-    private function buildQuery($method, $terms = null) {
-        if(is_null($terms))
+    private function buildQuery($method, $terms = null)
+    {
+        if (is_null($terms)) {
             $terms = $this->searchTerms;
+        }
 
-        if(count($terms) !== 0) {
+        if (count($terms) !== 0) {
             array_walk($terms, 'self::' . $method);
             return implode(' ', $terms);
         }
@@ -104,14 +120,15 @@ class SolrClient extends SolrQuery {
         return null;
     }
 
-    private function standardQuery(&$term) {
+    private function standardQuery(&$term)
+    {
         $rawTerm = trim($term);
 
         // NORMAL
         $term = $this->escape($rawTerm) . '^1';
 
         // WILDCARD
-        if((is_numeric($rawTerm) && $this->numericWildcard)
+        if ((is_numeric($rawTerm) && $this->numericWildcard)
             || (!is_numeric($rawTerm) && $this->wordWildcard)
             && strlen($rawTerm) >= $this->wildcardMinStrlen) {
 
@@ -122,7 +139,7 @@ class SolrClient extends SolrQuery {
         }
 
         // FUZZY
-        if(!empty($this->fuzzy)
+        if (!empty($this->fuzzy)
             && strlen($rawTerm) >= $this->wildcardMinStrlen
             && !is_numeric($rawTerm)) {
 
