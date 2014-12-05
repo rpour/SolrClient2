@@ -73,7 +73,7 @@ class SolrClient extends SolrQuery
         return $this;
     }
 
-    public function find($string = '')
+    public function find($string = '', $q = null, $page = null, $hits = null, $params = array())
     {
         $this->searchTerms = array_filter(explode(' ', $string));
 
@@ -92,7 +92,11 @@ class SolrClient extends SolrQuery
             $this->params['f.' . $this->autocompleteField . '.facet.mincount'] = 1;
         }
 
-        $response = $this->exec($this->buildQuery('standardQuery'));
+        if (!is_null($q)) {
+            $response = $this->exec($q, $page, $hits, $params);
+        } else {
+            $response = $this->exec($this->buildQuery('standardQuery'), $page, $hits, $params);
+        }
 
         // PREPAIR PAGING
         if (isset($response->count) && isset($response->offset)) {
