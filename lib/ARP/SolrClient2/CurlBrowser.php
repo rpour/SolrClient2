@@ -74,6 +74,7 @@ class CurlBrowser
             } else {
                 $this->logger->debug('Body: ' . $data);
             }
+            $this->logger->debug('Headers: ' . $header);
         }
 
         if (isset($parsed_url['scheme'])
