@@ -11,6 +11,19 @@ class CurlBrowser
     private $proxy_host = null;
     private $proxy_port = null;
     private $proxy_exclude = null;
+    private $logger = null;
+
+    /**
+     * If a logger is set, request urls and bodies will be logged on
+     * debug level.
+     *
+     * @param logger a logger instance, e.g. monolog as used by
+     * symfony2 (any PSR-3 logger should do)
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+    }
 
     public function httpGet($url)
     {
@@ -53,6 +66,16 @@ class CurlBrowser
         $curlInit = curl_init();
 
         $parsed_url = parse_url($url);
+
+        if($this->logger) {
+            $this->logger->debug('Requesting via ' . $method . ' against ' . $url);
+            if(is_array($data)) {
+                $this->logger->debug('KVP values as json: ' . json_encode($data));
+            } else {
+                $this->logger->debug('Body: ' . $data);
+            }
+            $this->logger->debug('Headers: ' . $header);
+        }
 
         if (isset($parsed_url['scheme'])
             && $parsed_url['scheme'] !== 'http'
