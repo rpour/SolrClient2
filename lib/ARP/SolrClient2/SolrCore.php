@@ -29,6 +29,10 @@ class SolrCore extends CurlBrowser
         $this->options($options);
     }
 
+    /**
+     * @param $options
+     * @return $this
+     */
     public function options($options)
     {
         if (is_string($options)) {
@@ -62,24 +66,40 @@ class SolrCore extends CurlBrowser
         return $this;
     }
 
+    /**
+     * @param $host
+     * @return $this
+     */
     public function host($host)
     {
         $this->host = $host;
         return $this;
     }
 
+    /**
+     * @param $port
+     * @return $this
+     */
     public function port($port)
     {
         $this->port = $port;
         return $this;
     }
 
+    /**
+     * @param $path
+     * @return $this
+     */
     public function path($path)
     {
         $this->path = $path;
         return $this;
     }
 
+    /**
+     * @param $core
+     * @return $this
+     */
     public function core($core)
     {
         $this->core = $core;
@@ -97,35 +117,58 @@ class SolrCore extends CurlBrowser
         return $this->core($core);
     }
 
+    /**
+     * @param $version
+     * @return $this
+     */
     public function version($version)
     {
         $this->version = $version;
         return $this;
     }
 
+    /**
+     * @param array $params
+     * @return $this
+     */
     public function params(array $params)
     {
         $this->params = $params;
         return $this;
     }
 
+    /**
+     * @param $size
+     * @return $this
+     */
     public function cacheSize($size)
     {
         $this->cacheSize = (int)$size;
         return $this;
     }
 
+    /**
+     * @return SolrDocument
+     */
     public function newDocument()
     {
         return new SolrDocument();
     }
 
+    /**
+     * @param SolrDocument $document
+     * @return $this
+     */
     public function addDocument(SolrDocument $document)
     {
         $this->jsonUpdate($document->toJson());
         return $this;
     }
 
+    /**
+     * @param $documents
+     * @return $this
+     */
     public function addDocuments($documents)
     {
         $json = '';
@@ -138,6 +181,10 @@ class SolrCore extends CurlBrowser
         return $this;
     }
 
+    /**
+     * @param SolrDocument $document
+     * @return $this|null|\stdClass
+     */
     public function appendDocument(SolrDocument $document)
     {
         $this->cache .= substr($document->toJson(), 1, -1) . ',';
@@ -147,18 +194,28 @@ class SolrCore extends CurlBrowser
         return $this;
     }
 
+    /**
+     * @param $query
+     * @return $this
+     */
     public function deleteByQuery($query)
     {
         $this->jsonUpdate('{"delete": { "query":"' . $query . '" }}');
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function deleteAll()
     {
         $this->deleteByQuery('*:*');
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function commit()
     {
         $this->commitCachedDocuments();
@@ -166,18 +223,29 @@ class SolrCore extends CurlBrowser
         return $this;
     }
 
+    /**
+     * @param bool $waitSearcher
+     * @return $this
+     */
     public function optimize($waitSearcher = false)
     {
         $this->jsonUpdate('{"optimize": {"waitSearcher":' . $waitSearcher ? 'true' : 'false' . '}}', false);
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function queryInfo()
     {
         return urldecode($this->content) .
             '<pre>' . print_r($this->params, true) . '</pre>';
     }
 
+    /**
+     * @param $params
+     * @return \stdClass
+     */
     protected function solrSelect($params)
     {
         $this->content = http_build_query($params);
@@ -189,13 +257,18 @@ class SolrCore extends CurlBrowser
             $this->content
         );
 
-        if ($response->status !== 200) {
+        if ($response->status >= 400 && $response->status < 600) {
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
         }
 
         return $response;
     }
 
+    /**
+     * @param $arr1
+     * @param $arr2
+     * @return mixed
+     */
     protected function mergeRecursive($arr1, $arr2)
     {
         foreach (array_keys($arr2) as $key) {
@@ -208,6 +281,10 @@ class SolrCore extends CurlBrowser
         return $arr1;
     }
 
+    /**
+     * @param $string
+     * @param bool $cached
+     */
     protected function appendToFilter($string, $cached = true)
     {
         if (!$cached) {
@@ -221,6 +298,10 @@ class SolrCore extends CurlBrowser
         }
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
     private function generateURL($path = '')
     {
         return 'http://'
@@ -231,6 +312,11 @@ class SolrCore extends CurlBrowser
             . ($path == '' ?: '/' . $path);
     }
 
+    /**
+     * @param $content
+     * @param bool $checkStatus
+     * @return \stdClass
+     */
     private function jsonUpdate($content, $checkStatus = true)
     {
         if ($this->version == 4) {
@@ -245,13 +331,16 @@ class SolrCore extends CurlBrowser
             $content
         );
 
-        if ($checkStatus && $response->status !== 200) {
+        if ($checkStatus && $response->status >= 400 && $response->status < 600) {
             throw new \RuntimeException("\nStatus: $response->status\nContent: $response->content");
         }
 
         return $response;
     }
 
+    /**
+     * @return null|\stdClass
+     */
     private function commitCachedDocuments()
     {
         if (strlen($this->cache) > 1) {

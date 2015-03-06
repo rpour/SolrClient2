@@ -12,6 +12,12 @@ class Paging
     private $offset = 0;
     private $length = 10;
 
+    /**
+     * @param $count
+     * @param $limit
+     * @param null $page
+     * @param null $offset
+     */
     public function __construct($count, $limit, $page = null, $offset = null)
     {
         $this->count = (int)$count;
@@ -19,12 +25,15 @@ class Paging
 
         if (!is_null($page)) {
             $this->offset = (int)($page * $limit) - $limit;
-        }
-
-        elseif (!is_null($offset))
+        } elseif (!is_null($offset)) {
             $this->offset = (int)$offset;
+        }
     }
 
+    /**
+     * @param $length
+     * @return $this
+     */
     public function length($length)
     {
         $this->length = (int)$length;
@@ -32,6 +41,9 @@ class Paging
         return $this;
     }
 
+    /**
+     * @return \stdClass
+     */
     public function calculate()
     {
         $response = new \stdClass();
