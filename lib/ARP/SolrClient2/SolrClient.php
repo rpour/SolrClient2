@@ -170,4 +170,39 @@ class SolrClient extends SolrQuery
 
         return null;
     }
+
+    /**
+     * @param $term
+     */
+    private function standardQuery(&$term)
+    {
+        $rawTerm = trim($term);
+
+        // NORMAL
+        $term = $this->escape($rawTerm) . '^1';
+
+        // WILDCARD
+        if ((is_numeric($rawTerm) && $this->numericWildcard)
+            || (!is_numeric($rawTerm) && $this->wordWildcard)
+            && strlen($rawTerm) >= $this->wildcardMinStrlen) {
+
+            $term .= ' OR '
+                . ($this->leftWildcard ? '*' : '')
+                . $this->escape($rawTerm)
+                . '*^0.6';
+        }
+
+        // FUZZY
+        if (!empty($this->fuzzy)
+            && strlen($rawTerm) >= $this->wildcardMinStrlen
+            && !is_numeric($rawTerm)) {
+
+            $term .= ' OR '
+                . $this->escape($rawTerm)
+                . $this->fuzzy
+                . '^0.3';
+        }
+
+        $term = '(' . $term . ')';
+    }
 }
