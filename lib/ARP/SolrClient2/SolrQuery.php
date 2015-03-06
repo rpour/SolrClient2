@@ -84,8 +84,8 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Enable debug query
-     * @param  boolean $debug
+     * @param $debug
+     * @return $this
      */
     public function debug($debug)
     {
@@ -99,8 +99,8 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Set result page
-     * @param  integer $page Result page
+     * @param $page
+     * @return $this
      */
     public function page($page)
     {
@@ -109,8 +109,8 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Set start offset.
-     * @param  integer $offset Start position.
+     * @param $offset
+     * @return $this
      */
     public function offset($offset)
     {
@@ -119,8 +119,8 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Set result limit.
-     * @param  integer $limit Result limit.
+     * @param $limit
+     * @return $this
      */
     public function limit($limit)
     {
@@ -129,18 +129,26 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Select result fields.
-     * @param  string $select Fields
+     * @param $select
+     * @return $this
      */
     public function select($select)
     {
         $this->params['fl'] = $select;
         return $this;
     }
-    // TODO: REMOVE DEFAULT OPERATOR
+
+    /**
+     * @param $key
+     * @param null $value
+     * @param bool $cached
+     * @param string $innerOperator
+     * @return $this
+     */
     public function where($key, $value = null, $cached = true, $innerOperator = 'OR')
     {
-         $tmp = "";
+        //TODO: REMOVE DEFAULT OPERATOR
+        $tmp = "";
 
         // many fields ...
         if (is_array($key) && is_null($value)) {
@@ -181,6 +189,11 @@ class SolrQuery extends SolrCore
         return $this;
     }
 
+    /**
+     * @param $sort
+     * @param string $direction
+     * @return $this
+     */
     public function orderBy($sort, $direction = 'asc')
     {
         $this->params['sort'] = $sort . ' ' . $direction;
@@ -188,8 +201,8 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Queryparser.
-     * @param  string $queryParser Queryparser
+     * @param $queryParser
+     * @return $this
      */
     public function queryParser($queryParser)
     {
@@ -198,11 +211,10 @@ class SolrQuery extends SolrCore
     }
 
     /**
-     * Faceting
-     * @param  mixed  $fields   Fields
-     * @param  integer $mincount Returns only fileds more than mincount.
-     * @param  string  $sort     Fields.
-     * http://wiki.apache.org/solr/SimpleFacetParameters
+     * @param $fields
+     * @param int $mincount
+     * @param string $sort
+     * @return $this
      */
     public function facet($fields, $mincount = 1, $sort = 'index')
     {

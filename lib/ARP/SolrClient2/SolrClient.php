@@ -21,11 +21,19 @@ class SolrClient extends SolrQuery
     protected $autocompleteSort = 'count';
     protected $fuzzy = false;
 
+    /**
+     * @param null $options
+     */
     public function __construct($options = null)
     {
         parent::__construct($options);
     }
 
+    /**
+     * @param $fuzzy
+     * @param string $percent
+     * @return $this
+     */
     public function fuzzy($fuzzy, $percent = '')
     {
         if ($fuzzy && $this->version >= 4) {
@@ -35,36 +43,62 @@ class SolrClient extends SolrQuery
         return $this;
     }
 
+    /**
+     * @param $length
+     * @return $this
+     */
     public function pagingLength($length)
     {
         $this->pagingLength = (int)$length;
         return $this;
     }
 
+    /**
+     * @param $wordWildcard
+     * @return $this
+     */
     public function wordWildcard($wordWildcard)
     {
         $this->wordWildcard = (boolean)$wordWildcard;
         return $this;
     }
 
+    /**
+     * @param $numericWildcard
+     * @return $this
+     */
     public function numericWildcard($numericWildcard)
     {
         $this->numericWildcard = (boolean)$numericWildcard;
         return $this;
     }
 
+    /**
+     * @param $leftWildcard
+     * @return $this
+     */
     public function leftWildcard($leftWildcard)
     {
         $this->leftWildcard = (boolean)$leftWildcard;
         return $this;
     }
 
+    /**
+     * @param $wildcardMinStrlen
+     * @return $this
+     */
     public function wildcardMinStrlen($wildcardMinStrlen)
     {
         $this->wildcardMinStrlen = (int)$wildcardMinStrlen;
         return $this;
     }
 
+    /**
+     * @param $field
+     * @param int $limit
+     * @param string $sort
+     * @return $this
+     */
     public function autocomplete($field, $limit = 10, $sort = 'count')
     {
         $this->autocompleteField = trim($field);
@@ -73,6 +107,14 @@ class SolrClient extends SolrQuery
         return $this;
     }
 
+    /**
+     * @param string $string
+     * @param null $q
+     * @param null $page
+     * @param null $hits
+     * @param array $params
+     * @return Object
+     */
     public function find($string = '', $q = null, $page = null, $hits = null, $params = array())
     {
         $this->searchTerms = array_filter(explode(' ', $string));
@@ -110,6 +152,11 @@ class SolrClient extends SolrQuery
         return $response;
     }
 
+    /**
+     * @param $method
+     * @param null $terms
+     * @return null|string
+     */
     private function buildQuery($method, $terms = null)
     {
         if (is_null($terms)) {
@@ -122,37 +169,5 @@ class SolrClient extends SolrQuery
         }
 
         return null;
-    }
-
-    private function standardQuery(&$term)
-    {
-        $rawTerm = trim($term);
-
-        // NORMAL
-        $term = $this->escape($rawTerm) . '^1';
-
-        // WILDCARD
-        if ((is_numeric($rawTerm) && $this->numericWildcard)
-            || (!is_numeric($rawTerm) && $this->wordWildcard)
-            && strlen($rawTerm) >= $this->wildcardMinStrlen) {
-
-            $term .= ' OR '
-                . ($this->leftWildcard ? '*' : '')
-                . $this->escape($rawTerm)
-                . '*^0.6';
-        }
-
-        // FUZZY
-        if (!empty($this->fuzzy)
-            && strlen($rawTerm) >= $this->wildcardMinStrlen
-            && !is_numeric($rawTerm)) {
-
-            $term .= ' OR '
-                . $this->escape($rawTerm)
-                . $this->fuzzy
-                . '^0.3';
-        }
-
-        $term = '(' . $term . ')';
     }
 }

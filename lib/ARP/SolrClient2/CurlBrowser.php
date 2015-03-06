@@ -25,21 +25,39 @@ class CurlBrowser
         $this->logger = $logger;
     }
 
+    /**
+     * @param $url
+     * @return \stdClass
+     */
     public function httpGet($url)
     {
         return $this->doRequest('GET', $url, array(), null);
     }
 
+    /**
+     * @param $url
+     * @param array $header
+     * @param $data
+     * @return \stdClass
+     */
     public function httpPost($url, array $header, $data)
     {
         return $this->doRequest('POST', $url, $header, $data);
     }
 
+    /**
+     * @param $timeout
+     */
     public function timeout($timeout)
     {
         $this->timeout = (int)$timeout;
     }
 
+    /**
+     * @param $host
+     * @param $port
+     * @return bool
+     */
     public function proxy($host, $port)
     {
         if (trim($host) === "" || trim($port) === '') {
@@ -51,6 +69,10 @@ class CurlBrowser
         return true;
     }
 
+    /**
+     * @param $host
+     * @return bool
+     */
     public function excludeHost($host)
     {
         if (trim($host) === "") {
@@ -61,15 +83,22 @@ class CurlBrowser
         return true;
     }
 
+    /**
+     * @param $method
+     * @param $url
+     * @param array $header
+     * @param $data
+     * @return \stdClass
+     */
     private function doRequest($method, $url, array $header, $data)
     {
         $curlInit = curl_init();
 
         $parsed_url = parse_url($url);
 
-        if($this->logger) {
+        if ($this->logger) {
             $this->logger->debug('Requesting via ' . $method . ' against ' . $url);
-            if(is_array($data)) {
+            if (is_array($data)) {
                 $this->logger->debug('KVP values as json: ' . json_encode($data));
             } else {
                 $this->logger->debug('Body: ' . $data);

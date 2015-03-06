@@ -77,7 +77,11 @@ class SolrDocument
         ));
     }
 
-    // TODO: parseDate in eine andere Datei verlagern.
+
+    /**
+     * @param null $date
+     * @return string
+     */
     public function solrDate($date = null)
     {
         $return = '';
@@ -96,6 +100,10 @@ class SolrDocument
         return $return;
     }
 
+    /**
+     * @param $field
+     * @return null
+     */
     public function __get($field)
     {
         if (isset($this->_doc['doc'][$field])) {
@@ -107,6 +115,10 @@ class SolrDocument
         return null;
     }
 
+    /**
+     * @param $field
+     * @param $value
+     */
     public function __set($field, $value)
     {
         $this->add($field, $value);
