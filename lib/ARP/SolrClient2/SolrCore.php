@@ -10,15 +10,16 @@ require_once __DIR__ . '/CurlBrowser.php';
  */
 class SolrCore extends CurlBrowser
 {
-    protected $host = null;
-    protected $port = null;
-    protected $path = null;
-    protected $core = null;
-    protected $version = null;
-    protected $params = array();
+    protected $host      = null;
+    protected $port      = null;
+    protected $path      = null;
+    protected $core      = null;
+    protected $url       = null;
+    protected $version   = null;
+    protected $params    = array();
     protected $cache;
     protected $cacheSize = 10240;
-    protected $content = '';
+    protected $content   = '';
 
     /**
      * Constructor.
@@ -44,10 +45,15 @@ class SolrCore extends CurlBrowser
             }
         }
 
-        $this->host = isset($options['host']) ? $options['host'] : 'localhost';
-        $this->port = isset($options['port']) ? $options['port'] : 8080;
-        $this->path = isset($options['path']) ? $options['path'] : 'solr';
-        $this->core = isset($options['core']) ? $options['core'] : '';
+        if (isset($options['url']) && !empty($options['url'])) {
+            $this->url = $options['url'];
+        } else {
+            $this->host    = isset($options['host']) ? $options['host'] : 'localhost';
+            $this->port    = isset($options['port']) ? $options['port'] : 8080;
+            $this->path    = isset($options['path']) ? $options['path'] : 'solr';
+            $this->core    = isset($options['core']) ? $options['core'] : '';
+        }
+
         $this->version = isset($options['version']) ? (int)$options['version'] : 4;
 
         $this->params = array(
@@ -63,6 +69,16 @@ class SolrCore extends CurlBrowser
             $this->params = $this->mergeRecursive($this->params, $options['params']);
         }
 
+        return $this;
+    }
+
+    /**
+     * @param $url
+     * @return $this
+     */
+    public function url($url)
+    {
+        $this->url = $url;
         return $this;
     }
 
@@ -304,6 +320,10 @@ class SolrCore extends CurlBrowser
      */
     private function generateURL($path = '')
     {
+        if ($this->url !== null) {
+            return $this->url;
+        }
+
         return 'http://'
             . $this->host
             . ($this->port === null ?: ':' . $this->port)
