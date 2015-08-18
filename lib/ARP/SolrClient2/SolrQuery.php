@@ -216,7 +216,7 @@ class SolrQuery extends SolrCore
      * @param string $sort
      * @return $this
      */
-    public function facet($fields, $mincount = 1, $sort = 'index')
+    public function facet($fields, $mincount = 1, $sort = 'index', $limit = null)
     {
         if (is_string($fields)) {
             $fields = array($fields);
@@ -226,6 +226,11 @@ class SolrQuery extends SolrCore
         $this->params['facet.field'] = $fields;
         $this->params['facet.mincount'] = $mincount;
         $this->params['facet.sort'] = $sort;
+
+        if (!is_null($limit)) {
+            $this->params['facet.limit'] = (int)$limit;
+        }
+
         return $this;
     }
 
