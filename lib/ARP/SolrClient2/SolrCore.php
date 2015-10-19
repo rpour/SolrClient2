@@ -337,7 +337,7 @@ class SolrCore extends CurlBrowser
      * @param bool $checkStatus
      * @return \stdClass
      */
-    private function jsonUpdate($content, $checkStatus = true)
+    public function jsonUpdate($content, $checkStatus = true)
     {
         if ($this->version == 4) {
             $url = $this->generateURL('update');
