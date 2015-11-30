@@ -16,11 +16,13 @@ class SolrCore extends CurlBrowser
     protected $core      = null;
     protected $url       = null;
     protected $version   = null;
+    protected $mode      = null;
     protected $params    = array();
     protected $cache;
     protected $cacheSize = 10240;
     protected $content   = '';
-
+    protected $zHosts    = array();
+    const $availableModes = ['standalone','cloud']
     /**
      * Constructor.
      * @param array $options Options.
@@ -52,6 +54,9 @@ class SolrCore extends CurlBrowser
             $this->port    = isset($options['port']) ? $options['port'] : 8080;
             $this->path    = isset($options['path']) ? $options['path'] : 'solr';
             $this->core    = isset($options['core']) ? $options['core'] : '';
+            $this->mode    = ((isset($options['mode']) && in_array($options['mode'], $availableModes)) ? $options['mode'] : 'standalone';
+            $this->zHosts  = isset($this->mode) 
+
         }
 
         $this->version = isset($options['version']) ? (int)$options['version'] : 4;
@@ -320,17 +325,55 @@ class SolrCore extends CurlBrowser
      */
     private function generateURL($path = '')
     {
-        if ($this->url !== null) {
-            return $this->url;
+       if($this->mode === "standalone") {
+            if ($this->url !== null) {
+               return $this->url;
+            }
+       
+            return 'http://'
+                   . $this->host
+                   . ($this->port === null ?: ':' . $this->port)
+                   . ($this->path === null ?: '/' . $this->path)
+                   . ($this->core === null ?: '/' . $this->core)
+                   . ($path == '' ?: '/' . $path);}
+        
+        } else if($this->mode === "cloud"){
+        // SolrCloud docu says you could write to any noode/shard, zookeeper will do the rest. So we write for lb to a random node/shard 
+        // and if it not available we try to pick a other node
+        // I´m not sure if we need a real zookeepr client implementation here but i don think so
+            rnd = rand(0, count($this->$zHosts));
+            shard = 'http://'
+                   . $this->shards[rnd]
+                   . ($this->port === null ?: ':' . $this->port)
+                   . ($this->path === null ?: '/' . $this->path)
+                   . ($this->core === null ?: '/' . $this->core);
+                   
+
+            if(isAvailable(shard)){
+
+                return shard.path
+
+            }
+            else {
+
+                generateURL($this->$path)
+            }
+
+        }
+    }
+
+    public function isAvailable(url){
+
+        $json = file_get_contents(url.'/admin/ping?wt=json'); 
+        $data = json_decode($json);
+        if(data['status'] === 'Ok'){
+            return true;
+        } else {
+            return false;
         }
 
-        return 'http://'
-            . $this->host
-            . ($this->port === null ?: ':' . $this->port)
-            . ($this->path === null ?: '/' . $this->path)
-            . ($this->core === null ?: '/' . $this->core)
-            . ($path == '' ?: '/' . $path);
-    }
+    } 
+
 
     /**
      * @param $content
