@@ -21,8 +21,8 @@ class SolrCore extends CurlBrowser
     protected $cache;
     protected $cacheSize = 10240;
     protected $content   = '';
-    protected $zHosts    = array();
-    const $availableModes = ['standalone','cloud']
+    protected $cloudHosts    = array();
+    protected $availableModes = array('standalone','cloud'); //Should be final
     /**
      * Constructor.
      * @param array $options Options.
@@ -54,8 +54,8 @@ class SolrCore extends CurlBrowser
             $this->port    = isset($options['port']) ? $options['port'] : 8080;
             $this->path    = isset($options['path']) ? $options['path'] : 'solr';
             $this->core    = isset($options['core']) ? $options['core'] : '';
-            $this->mode    = ((isset($options['mode']) && in_array($options['mode'], $availableModes)) ? $options['mode'] : 'standalone';
-            $this->zHosts  = isset($this->mode) 
+            $this->mode    = ((isset($options['mode']) && in_array($options['mode'], $this->availableModes))) ? $options['mode'] : 'standalone';
+            $this->cloudHosts  = isset($this->mode) ;
 
         }
 
@@ -335,40 +335,41 @@ class SolrCore extends CurlBrowser
                    . ($this->port === null ?: ':' . $this->port)
                    . ($this->path === null ?: '/' . $this->path)
                    . ($this->core === null ?: '/' . $this->core)
-                   . ($path == '' ?: '/' . $path);}
-        
-        } else if($this->mode === "cloud"){
-        // SolrCloud docu says you could write to any noode/shard, zookeeper will do the rest. So we write for lb to a random node/shard 
+                   . ($path == '' ?: '/' . $path);
+       }
+       else if($this->mode === "cloud"){
+        // SolrCloud docu says you could write to any node, zookeeper will do the rest. So we write for lb to a random node
         // and if it not available we try to pick a other node
-        // I´m not sure if we need a real zookeepr client implementation here but i don think so
-            rnd = rand(0, count($this->$zHosts));
-            shard = 'http://'
-                   . $this->shards[rnd]
+        // I´m not sure if we need a real zookeeper client implementation here but i don think so
+            $rnd = rand(0, count($this->cloudHosts));
+            $node = 'http://'
+                   . $this->node[$rnd]
                    . ($this->port === null ?: ':' . $this->port)
                    . ($this->path === null ?: '/' . $this->path)
                    . ($this->core === null ?: '/' . $this->core);
                    
 
-            if(isAvailable(shard)){
+            if(isAvailable($node)){
 
-                return shard.path
+                return $node.$path;
 
             }
             else {
 
-                generateURL($this->$path)
+                $this->generateURL($this->$path);
             }
 
         }
     }
 
-    public function isAvailable(url){
+    private function isAvailable($url){
 
-        $json = file_get_contents(url.'/admin/ping?wt=json'); 
+        $json = file_get_contents($url.'/admin/ping?wt=json');
         $data = json_decode($json);
-        if(data['status'] === 'Ok'){
+        if($data['status'] === 'Ok'){
             return true;
-        } else {
+        }
+        else {
             return false;
         }
 
