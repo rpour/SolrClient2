@@ -55,7 +55,10 @@ class SolrCore extends CurlBrowser
             $this->path    = isset($options['path']) ? $options['path'] : 'solr';
             $this->core    = isset($options['core']) ? $options['core'] : '';
             $this->mode    = ((isset($options['mode']) && in_array($options['mode'], $this->availableModes))) ? $options['mode'] : 'standalone';
-            $this->cloudHosts  = isset($this->mode) ;
+            if($this->mode === "cloud"){
+				$this->cloudHosts = isset($options['cloudHosts']) ? $options['cloudHosts']: 'localhost:8983';
+				$this->port = '';
+			}
 
         }
 
@@ -323,7 +326,7 @@ class SolrCore extends CurlBrowser
      * @param string $path
      * @return string
      */
-    private function generateURL($path = '')
+    private function generateURL($path = '', $alive = 0)
     {
        if($this->mode === "standalone") {
             if ($this->url !== null) {
@@ -341,22 +344,28 @@ class SolrCore extends CurlBrowser
         // SolrCloud docu says you could write to any node, zookeeper will do the rest. So we write for lb to a random node
         // and if it not available we try to pick a other node
         // I´m not sure if we need a real zookeeper client implementation here but i don think so
-            $rnd = rand(0, count($this->cloudHosts));
+            $rnd = rand(0, count($this->cloudHosts)-1);
             $node = 'http://'
-                   . $this->node[$rnd]
-                   . ($this->port === null ?: ':' . $this->port)
+                   . $this->cloudHosts[$rnd]
                    . ($this->path === null ?: '/' . $this->path)
                    . ($this->core === null ?: '/' . $this->core);
                    
 
-            if(isAvailable($node)){
-
-                return $node.$path;
+            if($this->isAvailable($node)){
+				
+			
+                return $node."/".$path;
 
             }
             else {
-
-                $this->generateURL($this->$path);
+				if($alive <10){
+					$alive++;
+                $this->generateURL($path, $alive);
+				}
+				else{
+					
+					die("timed out after 10 attempts");
+				}
             }
 
         }
@@ -365,8 +374,9 @@ class SolrCore extends CurlBrowser
     private function isAvailable($url){
 
         $json = file_get_contents($url.'/admin/ping?wt=json');
-        $data = json_decode($json);
-        if($data['status'] === 'Ok'){
+		
+        $data = json_decode($json, true);
+		if($data['status'] === 'OK'){
             return true;
         }
         else {
