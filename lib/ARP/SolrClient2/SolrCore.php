@@ -364,8 +364,13 @@ class SolrCore extends CurlBrowser
     private function commitCachedDocuments()
     {
         if (strlen($this->cache) > 1) {
-            $response = $this->jsonUpdate('{' . substr($this->cache, 0, -1) . '}');
-            $this->cache = '';
+            try {
+                $response = $this->jsonUpdate('{' . substr($this->cache, 0, -1) . '}');
+            } catch(\Exception $e) {
+                $this->cache = '';
+                throw new \Exception($e->getMessage());
+            }
+            
             return $response;
         }
         return null;
