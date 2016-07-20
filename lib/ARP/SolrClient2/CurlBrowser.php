@@ -123,6 +123,7 @@ class CurlBrowser
         curl_setopt($curlInit, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlInit, CURLINFO_HEADER_OUT, true);
+        curl_setopt($curlInit, CURLOPT_CONNECTTIMEOUT, 0);
         curl_setopt($curlInit, CURLOPT_TIMEOUT, $this->timeout);
 
         if (!empty($header)) {
