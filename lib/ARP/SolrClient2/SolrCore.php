@@ -91,6 +91,16 @@ class SolrCore extends CurlBrowser
     }
 
     /**
+     * @param $mode
+     * @return $this
+     */
+    public function mode($mode)
+    {
+        $this->mode = $mode;
+        return $this;
+    }
+
+    /**
      * @param $host
      * @return $this
      */
