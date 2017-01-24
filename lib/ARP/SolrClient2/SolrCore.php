@@ -366,11 +366,11 @@ class SolrCore extends CurlBrowser
         if (strlen($this->cache) > 1) {
             try {
                 $response = $this->jsonUpdate('{' . substr($this->cache, 0, -1) . '}');
-            } catch(\Exception $e) {
                 $this->cache = '';
+            } catch(\Exception $e) {
                 throw new \Exception($e->getMessage());
             }
-            
+
             return $response;
         }
         return null;
