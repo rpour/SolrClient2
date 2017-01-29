@@ -18,7 +18,7 @@ class SolrCore extends CurlBrowser
     protected $version   = null;
     protected $params    = array();
     protected $cache;
-    protected $cacheSize = 10240;
+    protected $cacheSize = 1048576;
     protected $content   = '';
 
     /**
@@ -360,6 +360,7 @@ class SolrCore extends CurlBrowser
 
     /**
      * @return null|\stdClass
+     * @throws \Exception
      */
     private function commitCachedDocuments()
     {
@@ -368,6 +369,7 @@ class SolrCore extends CurlBrowser
                 $response = $this->jsonUpdate('{' . substr($this->cache, 0, -1) . '}');
                 $this->cache = '';
             } catch(\Exception $e) {
+                $this->cache = '';
                 throw new \Exception($e->getMessage());
             }
 
