@@ -103,7 +103,7 @@ class CurlBrowser
             } else {
                 $this->logger->debug('Body: ' . $data);
             }
-            $this->logger->debug('Headers: ' . $header);
+            $this->logger->debug('Headers: ' . print_r($header, true));
         }
 
         if (isset($parsed_url['scheme'])
@@ -123,6 +123,7 @@ class CurlBrowser
         curl_setopt($curlInit, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlInit, CURLINFO_HEADER_OUT, true);
+        curl_setopt($curlInit, CURLOPT_CONNECTTIMEOUT, 0);
         curl_setopt($curlInit, CURLOPT_TIMEOUT, $this->timeout);
 
         if (!empty($header)) {
