@@ -139,6 +139,43 @@ class SolrQuery extends SolrCore
     }
 
     /**
+     * @param  string $key
+     * @param  integer $from
+     * @param  integer $to
+     * @param  boolean
+     * @return $this
+     */
+    public function between($key, $from, $to, $cached = true)
+    {
+        $this->appendToFilter($key . ':[' . $from . ' TO ' . $to . ']', $cached);
+        return $this;
+    }
+
+    /**
+     * @param  string $key
+     * @param  integer $value
+     * @param  boolean
+     * @return $this
+     */
+    public function greaterOrEqual($key, $value, $cached = true)
+    {
+        $this->appendToFilter($key . ':[' . $value . ' TO *]', $cached);
+        return $this;
+    }
+
+    /**
+     * @param  string $key
+     * @param  integer $value
+     * @param  boolean
+     * @return $this
+     */
+    public function lessOrEqual($key, $value, $cached = true)
+    {
+        $this->appendToFilter($key . ':[* TO ' . $value . ']', $cached);
+        return $this;
+    }
+
+    /**
      * @param $key
      * @param null $value
      * @param bool $cached
@@ -177,7 +214,7 @@ class SolrQuery extends SolrCore
 
             $this->appendToFilter(trim(substr($tmp, 4)), $cached);
 
-        // one field an one value
+        // one field and one value
         } elseif (is_string($key) && !is_null($value)) {
             $this->appendToFilter($key . ':"' . $this->escapePhrase((string)$value) . '"', $cached);
 
