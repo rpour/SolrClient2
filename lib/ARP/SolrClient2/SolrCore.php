@@ -16,11 +16,13 @@ class SolrCore extends CurlBrowser
     protected $core      = null;
     protected $url       = null;
     protected $version   = null;
+    protected $mode      = null;
     protected $params    = array();
     protected $cache;
     protected $cacheSize = 1048576;
     protected $content   = '';
-
+    protected $cloudHosts    = array();
+    protected $availableModes = array('standalone','cloud'); //Should be final
     /**
      * Constructor.
      * @param array $options Options.
@@ -52,6 +54,12 @@ class SolrCore extends CurlBrowser
             $this->port    = isset($options['port']) ? $options['port'] : 8080;
             $this->path    = isset($options['path']) ? $options['path'] : 'solr';
             $this->core    = isset($options['core']) ? $options['core'] : '';
+            $this->mode    = ((isset($options['mode']) && in_array($options['mode'], $this->availableModes))) ? $options['mode'] : 'standalone';
+            if($this->mode === "cloud"){
+				$this->cloudHosts = isset($options['cloudHosts']) ? $options['cloudHosts']: 'localhost:8983';
+				$this->port = '';
+			}
+
         }
 
         $this->version = isset($options['version']) ? (int)$options['version'] : 4;
@@ -79,6 +87,16 @@ class SolrCore extends CurlBrowser
     public function url($url)
     {
         $this->url = $url;
+        return $this;
+    }
+
+    /**
+     * @param $mode
+     * @return $this
+     */
+    public function mode($mode)
+    {
+        $this->mode = $mode;
         return $this;
     }
 
@@ -318,19 +336,65 @@ class SolrCore extends CurlBrowser
      * @param string $path
      * @return string
      */
-    private function generateURL($path = '')
+    private function generateURL($path = '', $alive = 0)
     {
-        if ($this->url !== null) {
-            return $this->url;
+       if($this->mode === "standalone") {
+            if ($this->url !== null) {
+               return $this->url;
+            }
+       
+            return 'http://'
+                   . $this->host
+                   . ($this->port === null ?: ':' . $this->port)
+                   . ($this->path === null ?: '/' . $this->path)
+                   . ($this->core === null ?: '/' . $this->core)
+                   . ($path == '' ?: '/' . $path);
+       }
+       else if($this->mode === "cloud"){
+        // SolrCloud docu says you could write to any node, zookeeper will do the rest. So we write for lb to a random node
+        // and if it not available we try to pick a other node
+        // I´m not sure if we need a real zookeeper client implementation here but i don think so
+            $rnd = rand(0, count($this->cloudHosts)-1);
+            $node = 'http://'
+                   . $this->cloudHosts[$rnd]
+                   . ($this->path === null ?: '/' . $this->path)
+                   . ($this->core === null ?: '/' . $this->core);
+                   
+
+            if($this->isAvailable($node)){
+				
+			
+                return $node."/".$path;
+
+            }
+            else {
+				if($alive <10){
+					$alive++;
+                $this->generateURL($path, $alive);
+				}
+				else{
+					
+					die("timed out after 10 attempts");
+				}
+            }
+
+        }
+    }
+
+    private function isAvailable($url){
+
+        $json = file_get_contents($url.'/admin/ping?wt=json');
+		
+        $data = json_decode($json, true);
+		if($data['status'] === 'OK'){
+            return true;
+        }
+        else {
+            return false;
         }
 
-        return 'http://'
-            . $this->host
-            . ($this->port === null ?: ':' . $this->port)
-            . ($this->path === null ?: '/' . $this->path)
-            . ($this->core === null ?: '/' . $this->core)
-            . ($path == '' ?: '/' . $path);
-    }
+    } 
+
 
     /**
      * @param $content
